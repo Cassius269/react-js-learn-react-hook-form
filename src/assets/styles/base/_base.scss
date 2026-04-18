@@ -1,0 +1,25 @@
+// Importer les variables de couleurs
+@use '../utils/variables' as variables;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  font-family: variables.$font_familiy;
+  h1{
+    text-align: center;
+    margin-top: 3rem;
+  }
+}
+
+ul {
+  list-style-type: none; // désactiver les puces des listes
+}
+

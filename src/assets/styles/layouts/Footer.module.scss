@@ -1,0 +1,13 @@
+// Importation des variables de couleur
+@use '../utils//variables' as *;
+
+footer {
+    // background-color: $secondary;
+    height: 10vh;
+    text-align: center;
+    padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4rem;
+}

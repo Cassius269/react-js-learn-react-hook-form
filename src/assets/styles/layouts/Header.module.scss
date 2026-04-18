@@ -1,0 +1,20 @@
+@use '../utils/variables' as *; // Importation des variables
+@use '../utils/placeholders' as *;
+
+header {
+    @extend %box-shadow;
+
+    #burgerIcon {
+        opacity: 1;
+        transition: opacity 1.2s ease;
+        &:hover {
+            opacity: 0.5;
+        }
+    }
+
+    #divButtons {
+        @media screen and (width <= 796px) {
+            display: none !important;
+        }
+    }
+}
