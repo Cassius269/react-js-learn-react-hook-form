@@ -51,6 +51,7 @@ function UserForm() {
       // Valeurs par défaut (intéressant pour la mise à jour de donnée existante)
       firstname: "",
       lastname: "",
+      gender: "man",
     },
     resolver: yupResolver(yupSchema),
     mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
@@ -77,7 +78,6 @@ function UserForm() {
             className="form-control"
             id="firstname"
             type="text"
-            name="firstname"
             {...register("firstname")}
           />
           {errors?.firstname && (
@@ -85,14 +85,13 @@ function UserForm() {
           )}
         </div>
         <div className="mt-2">
-          <label className="form-label" htmlFor="firstname">
+          <label className="form-label" htmlFor="lastname">
             Nom de famillle
           </label>
           <input
             className="form-control"
             id="lastname"
             type="text"
-            name="lastname"
             {...register("lastname")}
           />
           {errors?.lastname && (
@@ -100,17 +99,67 @@ function UserForm() {
           )}
         </div>{" "}
         <div className="mt-2">
-          <label className="form-label" htmlFor="firstname">
+          <label className="form-label" htmlFor="age">
             Âge
           </label>
           <input
             className="form-control"
             id="age"
             type="number"
-            name="age"
             {...register("age")}
           />
           {errors?.age && <p className="text-danger">{errors.age.message}</p>}
+        </div>
+        <div className="mt-4 form-check">
+          <p className="lh-1 mb-1">Votre genre ?</p>
+          <div className="d-flex gap-5">
+            <div>
+              <label htmlFor="man">Masculin</label>
+              <input
+                {...register("gender")}
+                type="radio"
+                id="man"
+                value={"man"}
+                className="form-check-input"
+              />
+            </div>
+            <div>
+              <label className="form-check-label" htmlFor="woman">
+                Féminin
+              </label>
+              <input
+                {...register("gender")}
+                type="radio"
+                id="woman"
+                value={"woman"}
+                className="form-check-input"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 d-flex gap-3">
+          <p>Content ?</p>
+          <div className="d-flex gap-2">
+            <input
+              {...register("hapiness")}
+              type="checkbox"
+              id="yes"
+              value={true}
+              className="form-check-input"
+            />
+            <label htmlFor="yes" className="form-check-label">
+              Oui
+            </label>
+          </div>
+        </div>
+        <div className="form-floating">
+          <select {...register("sign")} className="form-select" id="sign">
+            <option>Veuillez ouvrir le menu</option>
+            <option value="poisson">Poisson</option>
+            <option value="verseau">Verseau</option>
+            <option value="lion">Lion</option>
+          </select>
+          <label htmlFor="floatingSelectDisabled">Signe</label>
         </div>
         <div className="mt-2">
           <label className="form-label" htmlFor="password">
@@ -120,7 +169,6 @@ function UserForm() {
             className="form-control"
             id="password"
             type="password"
-            name="password"
             {...register("password")}
           />
           {errors?.password && (
@@ -135,7 +183,6 @@ function UserForm() {
             className="form-control"
             id="confirmPassword"
             type="password"
-            name="confirmPassword"
             {...register("confirmPassword")}
           />
           {errors?.confirmPassword && (
