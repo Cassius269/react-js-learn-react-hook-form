@@ -1,6 +1,45 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import * as yup from "yup";
 
 function UserForm() {
+  // Déclaration du schema de validation
+  const yupSchema = yup.object({
+    firstname: yup
+      .string() // type de données chaâine de caractères
+      .required("Le prénom est obligatoire")
+      .min(3, "Trop court !")
+      .max(5, "Trop long !")
+      .test("isYes", "Vous n'avez pas de chance", async () => {
+        const response = await fetch("https://yesno.wtf/api");
+        const data = await response.json();
+
+        return data.answer === "yes";
+      }),
+    lastname: yup
+      .string()
+      .required("Le nom de famille est obligatoire")
+      .min(3, "Trop court !")
+      .max(5, "Trop long !"),
+    age: yup
+      .number()
+      .typeError("Veuillez entrer un nombre")
+      .min(18, "Doit être majeur"),
+    password: yup
+      .string()
+      .required("Le mot de passe est obligatoire")
+      .min(6, "Mot de passe trop court !")
+      .max(15, "Mot de passe trop long !"),
+    confirmPassword: yup
+      .string()
+      .required("Vous devez confirmer votre mot de passe")
+      .oneOf(
+        [yup.ref("password"), ""], // recupérer le champs password
+        "Les mots de passe ne correspondent pas", // Le message d'erreur
+      ),
+  });
+
+  // Déclaration de la gestion de formulaire avec react-hook-form
   const {
     register,
     getValues,
@@ -13,6 +52,7 @@ function UserForm() {
       firstname: "",
       lastname: "",
     },
+    resolver: yupResolver(yupSchema),
     mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
   });
 
@@ -38,16 +78,7 @@ function UserForm() {
             id="firstname"
             type="text"
             name="firstname"
-            {...register("firstname", {
-              required: {
-                value: true,
-                message: "Le champs est obligatoire",
-              },
-              minLength: {
-                value: 3, // longueur
-                message: "Trop court !",
-              },
-            })}
+            {...register("firstname")}
           />
           {errors?.firstname && (
             <p className="text-danger">{errors.firstname.message}</p>
@@ -62,29 +93,12 @@ function UserForm() {
             id="lastname"
             type="text"
             name="lastname"
-            {...register("lastname", {
-              // disabled: true,
-              required: {
-                value: true,
-                message: "Le champs est obligatoire",
-              },
-              minLength: {
-                value: 3, // longueur minimale
-                message: "Trop court !",
-              },
-              validate(value) {
-                if (value === "Jean") {
-                  return true;
-                } else {
-                  return "Mauvais nom de famille";
-                }
-              },
-            })}
+            {...register("lastname")}
           />
           {errors?.lastname && (
             <p className="text-danger">{errors.lastname.message}</p>
           )}
-        </div>
+        </div>{" "}
         <div className="mt-2">
           <label className="form-label" htmlFor="firstname">
             Âge
@@ -94,23 +108,39 @@ function UserForm() {
             id="age"
             type="number"
             name="age"
-            {...register("age", {
-              // disabled: true,
-              valueAsNumber: true, // récupérer l'age en int
-              required: {
-                value: true,
-                message: "L'âge est obligatoire",
-              },
-              min: {
-                value: 1, // longueur minimale
-                message: "Trop court !",
-              },
-              onBlur(e) {
-                console.log("évenement blur sur l'âge", e);
-              },
-            })}
+            {...register("age")}
           />
           {errors?.age && <p className="text-danger">{errors.age.message}</p>}
+        </div>
+        <div className="mt-2">
+          <label className="form-label" htmlFor="password">
+            Mot de passe
+          </label>
+          <input
+            className="form-control"
+            id="password"
+            type="password"
+            name="password"
+            {...register("password")}
+          />
+          {errors?.password && (
+            <p className="text-danger">{errors.password.message}</p>
+          )}
+        </div>
+        <div className="mt-2">
+          <label className="form-label" htmlFor="confirmPassword">
+            Mot de passe de confirmation
+          </label>
+          <input
+            className="form-control"
+            id="confirmPassword"
+            type="password"
+            name="confirmPassword"
+            {...register("confirmPassword")}
+          />
+          {errors?.confirmPassword && (
+            <p className="text-danger">{errors.confirmPassword.message}</p>
+          )}
         </div>
         <input
           className="btn btn-primary mt-3"
