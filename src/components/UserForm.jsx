@@ -53,6 +53,10 @@ function UserForm() {
       lastname: "",
       gender: "man",
     },
+    other: {
+      sign: "",
+      happy: false,
+    },
     resolver: yupResolver(yupSchema),
     mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
   });
@@ -141,7 +145,7 @@ function UserForm() {
           <p>Content ?</p>
           <div className="d-flex gap-2">
             <input
-              {...register("hapiness")}
+              {...register("other.happy")}
               type="checkbox"
               id="yes"
               value={true}
@@ -153,8 +157,8 @@ function UserForm() {
           </div>
         </div>
         <div className="form-floating">
-          <select {...register("sign")} className="form-select" id="sign">
-            <option>Veuillez ouvrir le menu</option>
+          <select {...register("other.sign")} className="form-select" id="sign">
+            <option value="">Veuillez ouvrir le menu</option>
             <option value="poisson">Poisson</option>
             <option value="verseau">Verseau</option>
             <option value="lion">Lion</option>
