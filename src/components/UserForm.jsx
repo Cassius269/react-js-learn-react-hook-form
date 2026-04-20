@@ -40,6 +40,13 @@ function UserForm() {
         [yup.ref("password"), ""], // recupérer le champs password
         "Les mots de passe ne correspondent pas", // Le message d'erreur
       ),
+    activities: yup.array().of(
+      yup.object({
+        level: yup
+          .string()
+          .equals(["expert", "senior"], "Vous ne pouvez pas être un débutant"),
+      }),
+    ),
   });
 
   // Valeurs par défaut
@@ -85,20 +92,19 @@ function UserForm() {
   const addActivity = () => {
     append({
       value: "", // création de champs avec valeur par défaut chaîne de caractère(s) vide
+      level: "expert",
     });
   };
 
+  const removeActivity = (index) => {
+    remove(index);
+  };
   // Surveiller toutes les valeurs du formulaire et les afficher
   watch("activities");
   console.log("Erreur", errors);
   // Fonction pour gérer la soumission de formulaire
   async function submit(values) {
     const { confirmPassword, ...payload } = values;
-
-    const finalPayload = {
-      ...payload,
-      activities: payload.activities.map((a) => a.value),
-    };
 
     console.log(values); // afficher les valeurs de champs
     try {
@@ -107,7 +113,7 @@ function UserForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(finalPayload),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -267,13 +273,25 @@ function UserForm() {
                   {...register(`activities.${index}.value`)}
                 />
                 <label htmlFor="activity"></label>
+
+                <select {...register(`activities.${index}.level`)} id="level">
+                  <option value="beginner">débutant</option>
+                  <option value="expert">expert</option>
+                  <option value="senior">senior</option>
+                </select>
                 <button
-                  onClick={() => remove(index)}
+                  onClick={() => removeActivity(index)}
                   type="button"
                   className="btn btn-danger"
                 >
                   -
                 </button>
+                {errors?.activities?.length &&
+                  errors?.activities[index]?.level && (
+                    <i className="text-danger">
+                      {errors?.activities[index].level.message}
+                    </i>
+                  )}
               </li>
             ))}
           </ul>
