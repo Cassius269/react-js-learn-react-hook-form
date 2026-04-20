@@ -9,18 +9,18 @@ function UserForm() {
       .string() // type de données chaâine de caractères
       .required("Le prénom est obligatoire")
       .min(3, "Trop court !")
-      .max(5, "Trop long !")
-      .test("isYes", "Vous n'avez pas de chance", async () => {
-        const response = await fetch("https://yesno.wtf/api");
-        const data = await response.json();
+      .max(10, "Trop long !"),
+    // .test("isYes", "Vous n'avez pas de chance", async () => {
+    //   const response = await fetch("https://yesno.wtf/api");
+    //   const data = await response.json();
 
-        return data.answer === "yes";
-      }),
+    //   return data.answer === "yes";
+    // })
     lastname: yup
       .string()
       .required("Le nom de famille est obligatoire")
       .min(3, "Trop court !")
-      .max(5, "Trop long !"),
+      .max(10, "Trop long !"),
     age: yup
       .number()
       .typeError("Veuillez entrer un nombre")
@@ -42,24 +42,30 @@ function UserForm() {
       ),
   });
 
+  // Valeurs par défaut
+  const defaultValues = {
+    // Valeurs par défaut (intéressant pour la mise à jour de donnée existante)
+    firstname: "",
+    lastname: "",
+    gender: "man",
+    password: "",
+    other: {
+      sign: "",
+      happy: false,
+    },
+  };
+
   // Déclaration de la gestion de formulaire avec react-hook-form
   const {
     register,
     getValues,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    setError,
+    reset, // réinitialiser le formulaire
     handleSubmit,
   } = useForm({
-    defaultValues: {
-      // Valeurs par défaut (intéressant pour la mise à jour de donnée existante)
-      firstname: "",
-      lastname: "",
-      gender: "man",
-      other: {
-        sign: "",
-        happy: false,
-      },
-    },
+    defaultValues: defaultValues,
     resolver: yupResolver(yupSchema),
     mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
   });
@@ -69,8 +75,29 @@ function UserForm() {
   console.log(getValues());
 
   // Fonction pour gérer la soumission de formulaire
-  function submit(values) {
+  async function submit(values) {
+    const { confirmPassword, ...payload } = values;
+
     console.log(values); // afficher les valeurs de champs
+    try {
+      const response = await fetch("https://www.restapi.fr/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...payload }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        reset(defaultValues); // réinitiliser le formulaire avec les valeurs par défaut
+        console.log("Nouvel utilisateur", data);
+      } else {
+        console.log("Oops il y a une erreur");
+      }
+    } catch (e) {
+      console.error(`Erreur: ${e.message}`);
+    }
   }
 
   console.log(errors);
@@ -203,6 +230,7 @@ function UserForm() {
           className="btn btn-primary mt-3"
           type="submit"
           value={"Sauvegarder"}
+          disabled={isSubmitting}
         />
       </form>
     </>
