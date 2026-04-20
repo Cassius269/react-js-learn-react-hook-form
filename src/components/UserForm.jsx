@@ -95,6 +95,11 @@ function UserForm() {
   async function submit(values) {
     const { confirmPassword, ...payload } = values;
 
+    const finalPayload = {
+      ...payload,
+      activities: payload.activities.map((a) => a.value),
+    };
+
     console.log(values); // afficher les valeurs de champs
     try {
       const response = await fetch("https://www.restapi.fr/api/users", {
@@ -102,7 +107,7 @@ function UserForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...payload }),
+        body: JSON.stringify(finalPayload),
       });
 
       if (response.ok) {
