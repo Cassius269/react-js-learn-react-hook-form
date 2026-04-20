@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as yup from "yup";
 
 function UserForm() {
@@ -53,6 +53,7 @@ function UserForm() {
       sign: "",
       happy: false,
     },
+    activities: [],
   };
 
   // Déclaration de la gestion de formulaire avec react-hook-form
@@ -65,6 +66,7 @@ function UserForm() {
     clearErrors,
     setFocus, // donner le focus à un champs après récupération d'erreur
     trigger,
+    control, // permet d'ajout des champs à la volée
     reset, // réinitialiser le formulaire
     handleSubmit,
   } = useForm({
@@ -74,9 +76,20 @@ function UserForm() {
     mode: "onChange", // validation des données entrantes à la soumission du formulaire
   });
 
+  // Gérer les champs dynamiques
+  const { fields, append, remove } = useFieldArray({
+    name: "activities",
+    control,
+  });
+
+  const addActivity = () => {
+    append({
+      value: "", // création de champs avec valeur par défaut chaîne de caractère(s) vide
+    });
+  };
+
   // Surveiller toutes les valeurs du formulaire et les afficher
-  watch();
-  console.log(getValues());
+  watch("activities");
   console.log("Erreur", errors);
   // Fonction pour gérer la soumission de formulaire
   async function submit(values) {
@@ -96,13 +109,13 @@ function UserForm() {
         const data = await response.json();
         reset(defaultValues); // réinitiliser le formulaire avec les valeurs par défaut
         console.log("Nouvel utilisateur", data);
-        throw new Error("Hello");
+        // throw new Error("Hello");
       } else {
         console.log("Oops il y a une erreur");
       }
     } catch (e) {
       console.error(`Erreur: ${e.message}`);
-      setError("firstname", { type: "firstname", message: e.message });
+      // setError("firstname", { type: "firstname", message: e.message });
     }
   }
 
@@ -227,6 +240,38 @@ function UserForm() {
           {errors?.other?.sign && (
             <p className="text-danger">{errors.other.sign.message}</p>
           )}
+        </div>
+        <div className="mt-3">
+          <label className="mb-2 ">
+            <span>Activités</span>
+            <button
+              onClick={addActivity}
+              type="button"
+              className="btn btn-warning ms-2"
+            >
+              +
+            </button>
+          </label>
+          <ul>
+            {fields.map((activity, index) => (
+              <li key={activity.id} className="d-flex gap-3 mt-2">
+                <input
+                  type="text"
+                  id="activity"
+                  className="form-control"
+                  {...register(`activities.${index}.value`)}
+                />
+                <label htmlFor="activity"></label>
+                <button
+                  onClick={() => remove(index)}
+                  type="button"
+                  className="btn btn-danger"
+                >
+                  -
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="mt-2">
           <label className="form-label" htmlFor="password">
