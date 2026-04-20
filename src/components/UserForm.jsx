@@ -8,8 +8,8 @@ function UserForm() {
     firstname: yup
       .string() // type de données chaâine de caractères
       .required("Le prénom est obligatoire")
-      .min(3, "Trop court !")
-      .max(10, "Trop long !"),
+      .min(3, "Prénom court !")
+      .max(10, "Prénom long !"),
     // .test("isYes", "Vous n'avez pas de chance", async () => {
     //   const response = await fetch("https://yesno.wtf/api");
     //   const data = await response.json();
@@ -19,8 +19,8 @@ function UserForm() {
     lastname: yup
       .string()
       .required("Le nom de famille est obligatoire")
-      .min(3, "Trop court !")
-      .max(10, "Trop long !"),
+      .min(3, "Nom court !")
+      .max(10, "Nom long !"),
     age: yup
       .number()
       .typeError("Veuillez entrer un nombre")
@@ -62,18 +62,22 @@ function UserForm() {
     watch,
     formState: { errors, isSubmitting },
     setError,
+    clearErrors,
+    setFocus, // donner le focus à un champs après récupération d'erreur
+    trigger,
     reset, // réinitialiser le formulaire
     handleSubmit,
   } = useForm({
     defaultValues: defaultValues,
     resolver: yupResolver(yupSchema),
-    mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
+    criteriaMode: "all",
+    mode: "onChange", // validation des données entrantes à la soumission du formulaire
   });
 
   // Surveiller toutes les valeurs du formulaire et les afficher
   watch();
   console.log(getValues());
-
+  console.log("Erreur", errors);
   // Fonction pour gérer la soumission de formulaire
   async function submit(values) {
     const { confirmPassword, ...payload } = values;
@@ -92,11 +96,13 @@ function UserForm() {
         const data = await response.json();
         reset(defaultValues); // réinitiliser le formulaire avec les valeurs par défaut
         console.log("Nouvel utilisateur", data);
+        throw new Error("Hello");
       } else {
         console.log("Oops il y a une erreur");
       }
     } catch (e) {
       console.error(`Erreur: ${e.message}`);
+      setError("firstname", { type: "firstname", message: e.message });
     }
   }
 
@@ -112,10 +118,20 @@ function UserForm() {
             className="form-control"
             id="firstname"
             type="text"
-            {...register("firstname")}
+            {...register("firstname", {
+              onBlur() {
+                trigger("firstname");
+              },
+            })}
           />
           {errors?.firstname && (
-            <p className="text-danger">{errors.firstname.message}</p>
+            <ul>
+              {Object.keys(errors.firstname.types).map((k) => (
+                <li key={k} className="text-danger">
+                  {errors.firstname.types[k]}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
         <div className="mt-2">
@@ -129,7 +145,13 @@ function UserForm() {
             {...register("lastname")}
           />
           {errors?.lastname && (
-            <p className="text-danger">{errors.lastname.message}</p>
+            <ul>
+              {Object.keys(errors.lastname.types).map((k) => (
+                <li key={k} className="text-danger">
+                  {errors.lastname.types[k]}
+                </li>
+              ))}
+            </ul>
           )}
         </div>{" "}
         <div className="mt-2">
@@ -142,7 +164,15 @@ function UserForm() {
             type="number"
             {...register("age")}
           />
-          {errors?.age && <p className="text-danger">{errors.age.message}</p>}
+          {errors?.age && (
+            <ul>
+              {Object.keys(errors.age.types).map((k) => (
+                <li key={k} className="text-danger">
+                  {errors.age.types[k]}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="mt-4 form-check">
           <p className="lh-1 mb-1">Votre genre ?</p>
@@ -209,7 +239,13 @@ function UserForm() {
             {...register("password")}
           />
           {errors?.password && (
-            <p className="text-danger">{errors.password.message}</p>
+            <ul>
+              {Object.keys(errors.password.types).map((k) => (
+                <li key={k} className="text-danger">
+                  {errors.password.types[k]}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
         <div className="mt-2">
@@ -223,7 +259,13 @@ function UserForm() {
             {...register("confirmPassword")}
           />
           {errors?.confirmPassword && (
-            <p className="text-danger">{errors.confirmPassword.message}</p>
+            <ul>
+              {Object.keys(errors.confirmPassword.types).map((k) => (
+                <li key={k} className="text-danger">
+                  {errors.confirmPassword.types[k]}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
         <input
