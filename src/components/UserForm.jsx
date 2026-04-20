@@ -25,6 +25,9 @@ function UserForm() {
       .number()
       .typeError("Veuillez entrer un nombre")
       .min(18, "Doit être majeur"),
+    other: yup.object({
+      sign: yup.string().required("Champs obligatoire"),
+    }),
     password: yup
       .string()
       .required("Le mot de passe est obligatoire")
@@ -52,10 +55,10 @@ function UserForm() {
       firstname: "",
       lastname: "",
       gender: "man",
-    },
-    other: {
-      sign: "",
-      happy: false,
+      other: {
+        sign: "",
+        happy: false,
+      },
     },
     resolver: yupResolver(yupSchema),
     mode: "onSubmit", // validation des données entrantes à la soumission du formulaire
@@ -163,7 +166,10 @@ function UserForm() {
             <option value="verseau">Verseau</option>
             <option value="lion">Lion</option>
           </select>
-          <label htmlFor="floatingSelectDisabled">Signe</label>
+          <label htmlFor="sign">Signe astrologique</label>
+          {errors?.other?.sign && (
+            <p className="text-danger">{errors.other.sign.message}</p>
+          )}
         </div>
         <div className="mt-2">
           <label className="form-label" htmlFor="password">
